@@ -5,6 +5,9 @@ void main(List<String> args) {
   var teks = AksaraSunda().sundaToLatin('ᮠᮜ᮪ ᮓᮥᮔ᮪');
   SundaTranslator translator = SundaTranslator();
   String hasil = translator.latin2Sunda("Sunda ngaran abdi 123");
+  String teks11 = 'ini perubahan ku';
+  String teks12 = 'ini perubahan ku';
+  String teks13 = 'ini perubahan ku';
 
   print(hasil);
 
