@@ -67,8 +67,26 @@ Future<void> sundaToLatin(String text) async {
 
 void main() async {
   // Teks Latin yang ingin dikonversi
-  String text = 'aku juga manusia biasa yang bisa melakukan kesalahan, aku bukan manusia sempurna';
+  String text =
+      'aku juga manusia biasa yang bisa melakukan kesalahan, aku bukan manusia sempurna';
 
   // Memanggil fungsi untuk mengonversi teks
   await latinToSunda(text);
 }
+
+
+////// API DOCS //////
+/// url : https://api-transliterasi.vercel.app
+/// routes [
+/// latin-to-sunda
+/// sunda-to-latin
+/// ]
+/// return from API
+/// {
+/// "original": "teks yang ditulis (input from user)",
+/// "converted": "teks yang sudah diconvert"
+/// }
+/// HOW TO USE???
+/// method GET
+/// baseUrl/{route}?teks=teks-to-convert
+////// THANKS!! //////
