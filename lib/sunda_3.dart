@@ -13,6 +13,7 @@ const Map<String, String> LATIN = {
   'E': '\u1B88',
   'EU': '\u1B89',
   // konsonan ngalagena
+
   'k': '\u1B8A',
   'q': '\u1B8B',
   'g': '\u1B8C',
@@ -46,6 +47,7 @@ const Map<String, String> LATIN = {
   'a': '',
   'i': '\u1BA4',
   'u': '\u1BA5',
+
   '\u00E9': '\u1BA6', // é
   'o': '\u1BA7',
   'e': '\u1BA8',
@@ -149,6 +151,7 @@ class TransliterasiService {
     String oStr = '';
     RegExp exp = RegExp(r'^');
     Match? r;
+    String silaba;
     String suku;
     int polasuku = PAT_LAIN;
 
@@ -160,8 +163,6 @@ class TransliterasiService {
         '^($KONS)?($REP)?($VOK)($KONS)?($VOK|$REP)?'; // regex silaba
     String KONSONAN = '^($KONS)';
     String DIGIT = r'^([0-9]+)';
-
-    print(SILABA);
 
     while (idx < iLength) {
       suku = '';
@@ -185,28 +186,31 @@ class TransliterasiService {
             polasuku = grp2 != null ? PAT_KRV : PAT_KV;
           }
         } else {
-          polasuku = grp4 != null ? PAT_VK : PAT_V;
+          if (grp4 != null) {
+            polasuku = grp5 != null ? PAT_V : PAT_VK;
+          } else {
+            polasuku = PAT_V;
+          }
         }
 
-        String silaba;
         if (polasuku == PAT_KRVK) {
           suku = grp1! + grp2! + grp3! + grp4!;
           silaba = LATIN[grp1]! +
-              LATIN['+$grp2' + 'a']! +
+              LATIN['+$grp2' 'a']! +
               LATIN[grp3]! +
-              _sundaAkhir(grp4!);
+              _sundaAkhir(grp4);
         } else if (polasuku == PAT_KRV) {
           suku = grp1! + grp2! + grp3!;
-          silaba = LATIN[grp1]! + LATIN['+$grp2' + 'a']! + LATIN[grp3]!;
+          silaba = LATIN[grp1]! + LATIN['+$grp2' 'a']! + LATIN[grp3]!;
         } else if (polasuku == PAT_KVK) {
           suku = grp1! + grp3! + grp4!;
-          silaba = LATIN[grp1]! + LATIN[grp3]! + _sundaAkhir(grp4!);
+          silaba = LATIN[grp1]! + LATIN[grp3]! + _sundaAkhir(grp4);
         } else if (polasuku == PAT_KV) {
           suku = grp1! + grp3!;
           silaba = LATIN[grp1]! + LATIN[grp3]!;
         } else if (polasuku == PAT_VK) {
           suku = grp3! + grp4!;
-          silaba = LATIN[grp3.toUpperCase()]! + _sundaAkhir(grp4!);
+          silaba = LATIN[grp3.toUpperCase()]! + _sundaAkhir(grp4);
         } else {
           suku = grp3!;
           silaba = LATIN[suku.toUpperCase()]!;
@@ -219,20 +223,27 @@ class TransliterasiService {
         r = RegExp(KONSONAN).firstMatch(text);
         if (r != null) {
           suku = r.group(1)!;
-          String silaba = LATIN[suku]! + LATIN['+O']!;
+          if (polasuku == PAT_SILABA) {
+            silaba = _sundaAkhir(suku);
+          } else {
+            silaba = LATIN[suku]! + LATIN['+O']!;
+          }
           oStr += silaba;
         } else {
           r = RegExp(DIGIT).firstMatch(text);
           if (r != null) {
+            silaba = '|';
             suku = r.group(1)!;
             for (var i = 0; i < suku.length; i++) {
               oStr += LATIN[suku[i]]!;
             }
           } else {
             suku = text.substring(0, 1);
+            silaba = suku;
             oStr += suku;
           }
         }
+        polasuku = PAT_LAIN;
       }
       text = text.substring(suku.length);
       idx += suku.length;
