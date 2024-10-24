@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names, non_constant_identifier_names
+
 const Map<String, String> LATIN = {
   // panungtung
   '+ng': '\u1B80',
@@ -133,7 +135,7 @@ const int PAT_SILABA = 7;
 const int PAT_LAIN = 0;
 
 class TransliterasiService {
-  static String _sundaAkhir(String char) {
+  String _sundaAkhir(String char) {
     if (char == 'h' || char == 'r' || char == 'ng') {
       return LATIN['+$char'] ?? '';
     } else {
@@ -141,15 +143,13 @@ class TransliterasiService {
     }
   }
 
-  static String latinToSunda(String text) {
+  String latinToSunda(String text) {
     text = text.toLowerCase();
 
     int iLength = text.length;
     int idx = 0;
 
-    String tStr = '';
     String oStr = '';
-    RegExp exp = RegExp(r'^');
     Match? r;
     String silaba;
     String suku;
@@ -216,9 +216,7 @@ class TransliterasiService {
           silaba = LATIN[suku.toUpperCase()]!;
         }
         oStr += silaba;
-        tStr += '$suku($polasuku):';
         polasuku = PAT_SILABA;
-        ///// noted
       } else {
         r = RegExp(KONSONAN).firstMatch(text);
         if (r != null) {
@@ -234,9 +232,16 @@ class TransliterasiService {
           if (r != null) {
             silaba = '|';
             suku = r.group(1)!;
-            for (var i = 0; i < suku.length; i++) {
-              oStr += LATIN[suku[i]]!;
+
+            int l = suku.length;
+            int i = 0;
+            while (i < l) {
+              silaba += LATIN[suku[i]] ?? '';
+              i += 1;
             }
+
+            silaba += '|';
+            oStr += silaba;
           } else {
             suku = text.substring(0, 1);
             silaba = suku;
@@ -251,54 +256,67 @@ class TransliterasiService {
     return oStr;
   }
 
-  static String sundaToLatin(String text) {
+  String sundaToLatin(String text) {
     int idx = 0;
     int iLength = text.length;
     String oStr = '';
 
+    String suku = '';
+    String silaba = '';
+    Match? r;
+
     final RegExp KRV0K = RegExp(
         r'^([\u1B8A-\u1BA0\u1BAE\u1BAF])([\u1BA1-\u1BA3])?([\u1BA4-\u1BAA])?([\u1B80-\u1B82])?');
     final RegExp VK = RegExp(r'^([\u1B83-\u1B89])([\u1B80-\u1B82])?');
-    final RegExp angka = RegExp(r'^(\\|)?([\u1BB0-\u1BB9])(\\|)?');
+    final RegExp angka = RegExp(r'^(\|)?([\u1BB0-\u1BB9])(\|)?');
 
     while (idx < iLength) {
-      String suku = '';
-      Match? r;
-
+      suku = '';
+      silaba = '';
       r = KRV0K.firstMatch(text);
       if (r != null) {
-        suku += r[1] ?? '';
-        oStr += SUNDA[r[1]] ?? '';
+        suku += r.group(1) ?? '';
+        silaba += SUNDA[r.group(1)] ?? '';
 
-        if (r[2] != null) {
-          suku += r[2]!;
-          oStr += SUNDA[r[2]] ?? '';
+        if (r.group(2) != null) {
+          suku += r.group(2)!;
+          silaba += SUNDA[r.group(2)] ?? '';
         }
-        if (r[3] != null) {
-          suku += r[3]!;
-          oStr += SUNDA[r[3]] ?? '';
+
+        if (r.group(3) != null) {
+          suku += r.group(3)!;
+          silaba += SUNDA[r.group(3)] ?? '';
         } else {
-          oStr += 'a';
+          silaba += 'a';
         }
-        if (r[4] != null) {
-          suku += r[4]!;
-          oStr += SUNDA[r[4]] ?? '';
+        if (r.group(4) != null) {
+          suku += r.group(4)!;
+          silaba += SUNDA[r.group(4)] ?? '';
         }
+        oStr += silaba;
       } else {
         r = VK.firstMatch(text);
         if (r != null) {
-          suku += r[1] ?? '';
-          oStr += SUNDA[r[1]] ?? '';
-          if (r[2] != null) {
-            suku += r[2]!;
-            oStr += SUNDA[r[2]] ?? '';
+          suku += r.group(1) ?? '';
+          silaba += SUNDA[r.group(1)] ?? '';
+          if (r.group(2) != null) {
+            suku += r.group(2)!;
+            silaba += SUNDA[r.group(2)] ?? '';
           }
+          oStr += silaba;
         } else {
           r = angka.firstMatch(text);
           if (r != null) {
-            oStr += SUNDA[r[2]] ?? '';
+            if (r.group(1) != null) {
+              suku += r.group(1)!;
+            }
+            suku += r.group(2)!;
+            oStr += SUNDA[r.group(2)]!;
+            if (r.group(3) != null) {
+              suku += r.group(3)!;
+            }
           } else {
-            suku = text[0];
+            suku += text.substring(0, 1);
             oStr += suku;
           }
         }
